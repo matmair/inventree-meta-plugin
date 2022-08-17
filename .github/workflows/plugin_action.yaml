@@ -14,7 +14,7 @@
 #    types: [published]
 #jobs:
 #  plugin-action:
-#    uses: matmair/inventree-meta-plugin/.github/workflows/plugin_action.yml@v1.0
+#    uses: matmair/inventree-meta-plugin/.github/workflows/plugin_action.yml@v1.1
 #    secrets: inherit
 ####
 
@@ -53,7 +53,7 @@ jobs:
           flake8 .
 
   publish:
-    if: github.event_name == 'release' && github.event.action == 'created'
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs: style
     name: Publish to PyPi
     runs-on: ubuntu-latest
