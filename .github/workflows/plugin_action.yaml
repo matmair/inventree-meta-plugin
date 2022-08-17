@@ -1,22 +1,20 @@
 name: Plugin check action
 
 on: [push, pull_request, release]
+env:
+  python_version: 3.7
 
 jobs:
   style:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: [3.7]
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ env.python_version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.python_version }}
       - name: Install Deps
         run: |
           pip install invoke
@@ -38,8 +36,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
-      - name: Install Python Dependencies
+          python-version: ${{ env.python_version }}
+      - name: Install Python Build Dependencies
         run: |
           pip install --upgrade wheel setuptools twine build
       - name: Build Binary
