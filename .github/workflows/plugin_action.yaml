@@ -28,6 +28,7 @@ jobs:
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'created'
+    needs: style
     name: Publish to PyPi
     runs-on: ubuntu-latest
 
