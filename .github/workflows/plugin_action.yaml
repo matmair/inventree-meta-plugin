@@ -1,3 +1,17 @@
+# Reusable action for plugins.
+# This performs:
+# - linting with flake and pep8-naming
+# - publishes to PyPi
+
+# Use this with this syntax
+# on: [push, pull_request, release]
+#jobs:
+#  plugin-action:
+#    uses: matmair/inventree-meta-plugin/.github/workflows/plugin_action.yml@1.0
+#    secrets: inherit
+
+##
+
 name: Plugin check action
 
 on:
