@@ -3,14 +3,20 @@
 # - linting with flake and pep8-naming
 # - publishes to PyPi
 
-# Use this with this syntax
-# on: [push, pull_request, release]
+# Re-use this workflow with a few lines:
+####
+#on:
+#  push:
+#    branches: ['main', 'master']
+#  pull_request:
+#    types: [opened, edited, reopened]
+#  release:
+#    types: [published]
 #jobs:
 #  plugin-action:
 #    uses: matmair/inventree-meta-plugin/.github/workflows/plugin_action.yml@1.0
 #    secrets: inherit
-
-##
+####
 
 name: Plugin check action
 
