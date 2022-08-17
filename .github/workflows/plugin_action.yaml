@@ -16,12 +16,15 @@ name: Plugin check action
 
 on:
   workflow_call:
+    inputs:
+      python_version:
+        description: 'Python versin that should be used'
+        default: 3.7
+        required: false
+        type: string
     secrets:
       PYPI_API_TOKEN:
         required: true
-
-env:
-  python_version: 3.7
 
 jobs:
   style:
@@ -30,10 +33,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Python ${{ env.python_version }}
+      - name: Set up Python ${{ inputs.python_version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ inputs.python_version }}
       - name: Install Deps
         run: |
           pip install flake8==5.0.4
@@ -54,7 +57,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ inputs.python_version }}
       - name: Install Python Build Dependencies
         run: |
           pip install --upgrade wheel setuptools twine build
