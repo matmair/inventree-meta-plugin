@@ -24,7 +24,7 @@ on:
   workflow_call:
     inputs:
       python_version:
-        description: 'Python versin that should be used'
+        description: 'Python version'
         default: 3.7
         required: false
         type: string
@@ -34,20 +34,21 @@ on:
 
 jobs:
   style:
+    name: Style checks
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2
       - name: Set up Python ${{ inputs.python_version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ inputs.python_version }}
-      - name: Install Deps
+      - name: Install style check dependencies
         run: |
           pip install flake8==5.0.4
           pip install pep8-naming==0.13.1
-      - name: Style Checks
+      - name: Check style
         run: |
           flake8 .
 
@@ -58,21 +59,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2
-      - name: Setup Python
+      - name: Setup Python ${{ inputs.python_version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ inputs.python_version }}
-      - name: Install Python Build Dependencies
+      - name: Install Python build dependencies
         run: |
           pip install --upgrade wheel setuptools twine build
-      - name: Build Binary
+      - name: Build binary
         run: |
           python3 -m build
-      - name: Publish
-        run: |
-          python3 -m twine upload dist/*
+      - name: Publish tp PyPi
+        run: python3 -m twine upload dist/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
