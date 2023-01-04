@@ -1,0 +1,50 @@
+{%- set license_classifiers = {
+    'MIT license': 'License :: OSI Approved :: MIT License',
+    'BSD license': 'License :: OSI Approved :: BSD License',
+    'ISC license': 'License :: OSI Approved :: ISC License (ISCL)',
+    'Apache Software License 2.0': 'License :: OSI Approved :: Apache Software License',
+    'GNU General Public License v3': 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+} %}
+[build-system]
+requires = ["setuptools", "wheel", "pyyaml"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ cookiecutter.project_slug }}"
+version =  "{{ cookiecutter.version }}"
+description="{{ cookiecutter.project_short_description }}"
+readme = "README.md"
+license = {text = "{{ cookiecutter.open_source_license }}"}
+keywords = ["inventree", "inventree-plugin", "{{ cookiecutter.project_slug }}"]
+authors = [
+    {name = "{{ cookiecutter.full_name.replace('\"', '\\\"') }}", email =  "{{ cookiecutter.email }}"}
+]
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Plugins",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Scientific/Engineering",
+    {%- if cookiecutter.open_source_license in license_classifiers %}
+        '{{ license_classifiers[cookiecutter.open_source_license] }}',
+    {%- endif %}
+]
+requires-python=">=3.9"
+dependencies = ['django', ]
+
+[project.optional-dependencies]
+dev = ['twine', 'setuptools']
+
+[project.urls]
+"Repository" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+"Bug Tracker" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
+
+[project.entry-points."inventree_plugins"]
+{{ cookiecutter.project_slug }} = "{{ cookiecutter.project_slug }}:{{ cookiecutter.project_plugin_name }}"
+
+[tool.setuptools.packages.find]
+where = ["src"]
