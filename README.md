@@ -24,3 +24,11 @@ jobs:
 
 The workflow runs flake8 and - if a release was published - builds and publishes to PyPi. For this to work you need to set a secret named `PYPI_API_TOKEN` with a valid token for publishing to PyPi.
 Please scope the token to only work for the specific project and use a new one for each plugin. You might have to push the project once before the new scope becomes available in the [account settings](https://pypi.org/manage/account/).
+
+## Cookie cutter
+
+Cookie cutter is a template engine - we provide a template for a new plugin. It can be used to create a new plugin with a simple structure and all files required for scaleable plugins - from simple webhook integration to complex AppMixins.
+
+```bash
+cookiecutter gh:matmair/inventree-meta-plugin
+```
