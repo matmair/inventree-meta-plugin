@@ -51,6 +51,8 @@ jobs:
       - name: Check style
         run: |
           flake8 .
+      - name: Run pre-commit Checks
+        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # pin@v3.0.0
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'published'
@@ -71,7 +73,7 @@ jobs:
       - name: Build binary
         run: |
           python3 -m build
-      - name: Publish tp PyPi
+      - name: Publish to PyPi
         run: python3 -m twine upload dist/*
         env:
           TWINE_USERNAME: __token__
