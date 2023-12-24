@@ -24,7 +24,7 @@ on:
   workflow_call:
     inputs:
       python_version:
-        description: 'Python version'
+        description: "Python version"
         default: 3.9
         required: false
         type: string
@@ -51,7 +51,7 @@ jobs:
       - name: Check style
         run: |
           flake8 .
-      
+
   pre-commit:
     name: Pre-commit
     runs-on: ubuntu-latest
@@ -67,28 +67,38 @@ jobs:
       - name: Run pre-commit Checks
         uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # pin@v3.0.0
 
-  publish:
-    if: github.event_name == 'release' && github.event.action == 'published'
-    needs: pre-commit
-    name: Publish to PyPi
+  build-plugin:
+    name: Build plugin
     runs-on: ubuntu-latest
+    needs: style
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python_version }}
-      - name: Install Python build dependencies
-        run: |
-          pip install --upgrade wheel setuptools twine build
-      - name: Build binary
-        run: |
-          python3 -m build
-      - name: Publish to PyPi
-        run: python3 -m twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-          TWINE_REPOSITORY: pypi
+          submodules: recursive
+      - uses: hynek/build-and-inspect-python-package@v1
+
+  combine:
+    name: Wait for all jobs
+    runs-on: ubuntu-latest
+    needs: [pre-commit, build-plugin]
+
+  publish:
+    if: github.event_name == 'release' && github.event.action == 'published'
+    needs: combine
+    name: Publish to PyPi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Packages
+          path: dist
+      - name: Push to private repo
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: ${{ secrets.TWINE_USERNAME }}
+          password: ${{ secrets.TWINE_PASSWORD }}
+          repository-url: ${{ secrets.TWINE_REPOSITORY_URL }}
