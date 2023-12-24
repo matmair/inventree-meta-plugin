@@ -108,8 +108,6 @@ jobs:
         if: ${{ inputs.frontend_path != '' }}
         with:
           node-version: 18
-          cache: 'yarn'
-          dependencies-cache: ${{ inputs.frontend_path }}/yarn.lock
       - name: Build yarn frontend
         if: ${{ inputs.frontend_path != '' }}
         run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
