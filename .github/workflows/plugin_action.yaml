@@ -32,6 +32,11 @@ on:
       PYPI_API_TOKEN:
         required: true
 
+env:
+  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+
 jobs:
   style:
     name: Style checks
