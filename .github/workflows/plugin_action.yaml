@@ -28,11 +28,11 @@ on:
         default: '3.9'
         required: false
         type: string
-      frontend_build:
-        description: "Build frontend"
-        default: false
+      frontend_path:
+        description: "Path to frontend - is build if set"
+        default: ''
         required: false
-        type: boolean
+        type: string
       backend_tests:
         description: "Run backend tests"
         default: false
@@ -104,6 +104,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.frontend_path != '' }}
+        with:
+          node-version: 18
+      - name: Build yarn frontend
+        if: ${{ inputs.frontend_path != '' }}
+        run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
       - uses: hynek/build-and-inspect-python-package@v1
 
   combine:
