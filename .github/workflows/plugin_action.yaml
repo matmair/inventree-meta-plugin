@@ -47,11 +47,11 @@ on:
     secrets:
       PYPI_API_TOKEN:
         required: true
-      TWINE_USERNAME:
+      REPO_USERNAME:
         required: false
-      TWINE_PASSWORD:
+      REPO_PASSWORD:
         required: false
-      TWINE_REPOSITORY_URL:
+      REPO_REPOSITORY_URL:
         required: false
 
 env:
@@ -130,9 +130,9 @@ jobs:
         if: ${{ inputs.private_repo == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: ${{ secrets.TWINE_USERNAME }}
-          password: ${{ secrets.TWINE_PASSWORD }}
-          repository-url: ${{ secrets.TWINE_REPOSITORY_URL }}
+          user: ${{ secrets.REPO_USERNAME }}
+          password: ${{ secrets.REPO_PASSWORD }}
+          repository-url: ${{ secrets.REPO_REPOSITORY_URL }}
       - name: Push to PyPi
         if: ${{ inputs.private_repo == 'false' }}
         uses: pypa/gh-action-pypi-publish@release/v1
