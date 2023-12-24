@@ -83,6 +83,9 @@ jobs:
     name: Wait for all jobs
     runs-on: ubuntu-latest
     needs: [pre-commit, build-plugin]
+    steps:
+      - name: Dummy action
+        run: echo "Dummy action"
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'published'
