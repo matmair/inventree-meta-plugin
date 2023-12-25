@@ -139,15 +139,15 @@ jobs:
           SEC_PWD: ${{ secrets.REPO_PASSWORD }}
           SEC_URL: ${{ secrets.REPO_REPOSITORY_URL }}
         run: |
-          if [! "$SEC_USR"]; then
+          if [ ! "$SEC_USR"]; then
             echo "Missing user for private repo"
             exit 1
           fi
-          if [! "$SEC_PWD"]; then
+          if [ ! "$SEC_PWD"]; then
           echo "Missing password for private repo"
           exit 1
           fi
-          if [! "$SEC_URL"]; then
+          if [ ! "$SEC_URL"]; then
             echo "Missing url for private repo"
             exit 1
           fi
