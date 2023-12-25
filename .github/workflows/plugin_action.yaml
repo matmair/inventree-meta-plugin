@@ -134,14 +134,14 @@ jobs:
           name: Packages
           path: dist
       - name: Push to private repo
-        if: ${{ inputs.private_repo == 'true' }}
+        if: ${{ inputs.private_repo == true }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: ${{ secrets.REPO_USERNAME }}
           password: ${{ secrets.REPO_PASSWORD }}
           repository-url: ${{ secrets.REPO_REPOSITORY_URL }}
       - name: Push to PyPi
-        if: ${{ inputs.private_repo == 'false' }}
+        if: ${{ inputs.private_repo == false }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
