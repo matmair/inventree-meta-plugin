@@ -30,7 +30,7 @@ on:
         type: string
       frontend_path:
         description: "Path to frontend - is build if set"
-        default: ''
+        default: 'undefined'
         required: false
         type: string
       backend_tests:
@@ -105,11 +105,11 @@ jobs:
         with:
           submodules: recursive
       - uses: actions/setup-node@v4
-        if: ${{ inputs.frontend_path != '' }}
+        if: ${{ inputs.frontend_path != 'undefined' }}
         with:
           node-version: 18
       - name: Build yarn frontend
-        if: ${{ inputs.frontend_path != '' }}
+        if: ${{ inputs.frontend_path != 'undefined' }}
         run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
       - uses: hynek/build-and-inspect-python-package@v1
 
