@@ -56,7 +56,7 @@ on:
 
     secrets:
       PYPI_API_TOKEN:
-        required: true
+        required: false
       REPO_USERNAME:
         required: false
       REPO_PASSWORD:
