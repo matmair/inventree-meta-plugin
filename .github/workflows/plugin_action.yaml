@@ -43,7 +43,12 @@ on:
         default: false
         required: false
         type: boolean
-  
+      pypi_repo:
+        description: "Push to PyPi"
+        default: true
+        required: false
+        type: boolean
+
     secrets:
       PYPI_API_TOKEN:
         required: true
@@ -121,13 +126,31 @@ jobs:
       - name: Dummy action
         run: echo "Dummy action"
 
-  publish:
-    if: github.event_name == 'release' && github.event.action == 'published'
+  publish_private:
+    if: github.event_name == 'release' && github.event.action == 'published' && inputs.private_repo == true
     needs: combine
-    name: Publish to PyPi
+    name: Publish to private repo
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check if needed secrets are present for private repo
+        env:
+          SEC_USR: ${{ secrets.REPO_USERNAME }}
+          SEC_PWD: ${{ secrets.REPO_PASSWORD }}
+          SEC_URL: ${{ secrets.REPO_REPOSITORY_URL }}
+        run: |
+          if [! "$SEC_USR"]; then
+            echo "Missing user for private repo"
+            exit 1
+          fi
+          if [! "$SEC_PWD"]; then
+          echo "Missing password for private repo"
+          exit 1
+          fi
+          if [! "$SEC_URL"]; then
+            echo "Missing url for private repo"
+            exit 1
+          fi
       - name: Get artifact
         uses: actions/download-artifact@v3
         with:
@@ -140,8 +163,28 @@ jobs:
           user: ${{ secrets.REPO_USERNAME }}
           password: ${{ secrets.REPO_PASSWORD }}
           repository-url: ${{ secrets.REPO_REPOSITORY_URL }}
+
+  publish:
+    if: github.event_name == 'release' && github.event.action == 'published' && inputs.pypi_repo == true
+    needs: combine
+    name: Publish to PyPi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if needed secrets are present for PyPi
+        env:
+          SEC_PYPI: ${{ secrets.PYPI_API_TOKEN != '' }}
+        run: |
+          if [ $SEC_PYPI == false ]; then
+            echo "Missing PyPi secret"
+            exit 1
+          fi
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Packages
+          path: dist
       - name: Push to PyPi
-        if: ${{ inputs.private_repo == false }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
