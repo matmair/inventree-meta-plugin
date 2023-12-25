@@ -25,12 +25,12 @@ on:
     inputs:
       python_version:
         description: "Python version"
-        default: '3.9'
+        default: "3.9"
         required: false
         type: string
       frontend_path:
         description: "Path to frontend - is build if set"
-        default: 'undefined'
+        default: "undefined"
         required: false
         type: string
       backend_tests:
