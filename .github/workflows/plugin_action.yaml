@@ -151,8 +151,6 @@ jobs:
     needs: combine
     name: Publish to PyPi
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
 
     steps:
       - name: Check if needed secrets are present for PyPi
