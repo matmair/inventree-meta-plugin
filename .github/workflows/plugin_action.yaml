@@ -53,6 +53,11 @@ on:
         default: true
         required: false
         type: boolean
+      pypi_trusted_publishers:
+        description: "Use trusted publisher mode"
+        default: false
+        required: false
+        type: boolean   
 
     secrets:
       PYPI_API_TOKEN:
@@ -140,7 +145,6 @@ jobs:
           name: Packages
           path: dist
       - name: Push to private repo
-        if: ${{ inputs.private_repo == true }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: ${{ secrets.REPO_USERNAME }}
@@ -152,12 +156,18 @@ jobs:
     needs: combine
     name: Publish to PyPi
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - name: Check if needed secrets are present for PyPi
         env:
           SEC_PYPI: ${{ secrets.PYPI_API_TOKEN != '' }}
+          TRUSTED: ${{ inputs.pypi_trusted_publishers }}
         run: |
+          if [$TRUSTED == true]; then
+            exit 0
+          fi
           if [ $SEC_PYPI == false ]; then
             echo "Missing PyPi secret"
             exit 1
@@ -167,7 +177,11 @@ jobs:
         with:
           name: Packages
           path: dist
-      - name: Push to PyPi
+      - name: Push to PyPi using token
+        if: ${{ inputs.pypi_trusted_publishers == false }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Push to PyPi using trusted publisher
+        if: ${{ inputs.pypi_trusted_publishers == true }}
+        uses: pypa/gh-action-pypi-publish@release/v1
