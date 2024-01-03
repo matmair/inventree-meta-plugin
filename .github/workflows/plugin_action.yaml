@@ -69,28 +69,8 @@ env:
 
 jobs:
   style:
-    name: Style checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python_version }}
-      - name: Install style check dependencies
-        run: |
-          pip install flake8==5.0.4
-          pip install pep8-naming==0.13.1
-      - name: Check style
-        run: |
-          flake8 .
-
-  pre-commit:
     name: Pre-commit
     runs-on: ubuntu-latest
-    needs: style
 
     steps:
       - name: Checkout code
