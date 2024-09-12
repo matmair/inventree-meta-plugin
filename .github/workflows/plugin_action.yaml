@@ -24,71 +24,149 @@ on:
   workflow_call:
     inputs:
       python_version:
-        description: 'Python version'
-        default: 3.9
+        description: "Python version"
+        default: "3.9"
         required: false
         type: string
+      frontend_path:
+        description: "Path to frontend - is build if set"
+        default: "undefined"
+        required: false
+        type: string
+      backend_tests:
+        description: "Run backend tests"
+        default: false
+        required: false
+        type: boolean
+      private_repo:
+        description: "Push to private repo"
+        default: false
+        required: false
+        type: boolean
+      private_url:
+        description: "Private repo url"
+        default: ""
+        required: false
+        type: string
+      pypi_repo:
+        description: "Push to PyPi"
+        default: true
+        required: false
+        type: boolean
+
     secrets:
       PYPI_API_TOKEN:
-        required: true
+        required: false
+      REPO_USERNAME:
+        required: false
+      REPO_PASSWORD:
+        required: false
+
+env:
+  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
 
 jobs:
   style:
-    name: Style checks
+    name: Pre-commit
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
       - name: Set up Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python_version }}
-      - name: Install style check dependencies
-        run: |
-          pip install flake8==5.0.4
-          pip install pep8-naming==0.13.1
-      - name: Check style
-        run: |
-          flake8 .
-      
-  pre-commit:
-    name: Pre-commit
+      - name: Run pre-commit Checks
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # pin@v3.0.1
+
+  build-plugin:
+    name: Build plugin
     runs-on: ubuntu-latest
     needs: style
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v2
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
         with:
-          python-version: ${{ inputs.python_version }}
-      - name: Run pre-commit Checks
-        uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # pin@v3.0.0
+          submodules: recursive
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # pin@v4
+        if: ${{ inputs.frontend_path != 'undefined' }}
+        with:
+          node-version: 18
+      - name: Build yarn frontend
+        if: ${{ inputs.frontend_path != 'undefined' }}
+        run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
+      - uses: hynek/build-and-inspect-python-package@73aea398b9c8de9ea9e4464c6b13cb8b1f3d6294 # pin@v2
+
+  combine:
+    name: Wait for all jobs
+    runs-on: ubuntu-latest
+    needs: [style, build-plugin]
+    steps:
+      - name: Dummy action
+        run: echo "Dummy action"
+
+  publish_private:
+    if: github.event_name == 'release' && github.event.action == 'published' && inputs.private_repo == true
+    needs: combine
+    name: Publish to private repo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if needed secrets are present for private repo
+        env:
+          SEC_USR: ${{ secrets.REPO_USERNAME }}
+          SEC_PWD: ${{ secrets.REPO_PASSWORD }}
+          SEC_URL: ${{ inputs.private_url }}
+        run: |
+          if [ ! "$SEC_USR"]; then
+            echo "Missing user for private repo"
+            exit 1
+          fi
+          if [ ! "$SEC_PWD"]; then
+          echo "Missing password for private repo"
+          exit 1
+          fi
+          if [ ! "$SEC_URL"]; then
+            echo "Missing url for private repo"
+            exit 1
+          fi
+      - name: Get artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
+        with:
+          name: Packages
+          path: dist
+      - name: Push to private repo
+        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241 # pin@v1
+        with:
+          user: ${{ secrets.REPO_USERNAME }}
+          password: ${{ secrets.REPO_PASSWORD }}
+          repository-url: ${{ inputs.private_url }}
 
   publish:
-    if: github.event_name == 'release' && github.event.action == 'published'
-    needs: pre-commit
+    if: github.event_name == 'release' && github.event.action == 'published' && inputs.pypi_repo == true
+    needs: combine
     name: Publish to PyPi
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup Python ${{ inputs.python_version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.python_version }}
-      - name: Install Python build dependencies
-        run: |
-          pip install --upgrade wheel setuptools twine build
-      - name: Build binary
-        run: |
-          python3 -m build
-      - name: Publish to PyPi
-        run: python3 -m twine upload dist/*
+      - name: Check if needed secrets are present for PyPi
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-          TWINE_REPOSITORY: pypi
+          SEC_PYPI: ${{ secrets.PYPI_API_TOKEN != '' }}
+        run: |
+          if [ $SEC_PYPI == false ]; then
+            echo "Missing PyPi secret"
+            exit 1
+          fi
+      - name: Get artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
+        with:
+          name: Packages
+          path: dist
+      - name: Push to PyPi using token
+        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241 # pin@v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
