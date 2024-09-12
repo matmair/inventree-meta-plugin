@@ -6,7 +6,7 @@
     "project_name": "New InvenTree Plugin",
     "project_slug": "inventree-{{ cookiecutter.integrated_project.lower().replace(' ', '_').replace('-', '_') }}",
     "project_short_description": "Short description of {{ cookiecutter.project_name }}.",
-    "project_plugin_name": "{{ cookiecutter.integrated_project.capitalize().replace(' ', '').replace('-', '_') }}Plugin",
+    "project_plugin_name": "{{ ''.join(a.capitalize() for a in cookiecutter.integrated_project.replace(' ', '-').replace('_','-').replace('.','-').split('-')) }}Plugin",
     "version": "0.1.0",
     "open_source_license": ["MIT license", "BSD license", "ISC license", "Apache Software License 2.0", "Not open source"]
 }
