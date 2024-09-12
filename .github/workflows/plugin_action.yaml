@@ -153,6 +153,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check if needed secrets are present for PyPi
+        env:
+          SEC_PYPI: ${{ secrets.PYPI_API_TOKEN != '' }}
+        run: |
+          if [ $SEC_PYPI == false ]; then
+            echo "Missing PyPi secret"
+            exit 1
+          fi
       - name: Get artifact
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
         with:
