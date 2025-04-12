@@ -99,7 +99,7 @@ jobs:
       - name: Build yarn frontend
         if: ${{ inputs.frontend_path != 'undefined' }}
         run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
-      - uses: hynek/build-and-inspect-python-package@73aea398b9c8de9ea9e4464c6b13cb8b1f3d6294 # pin@v2
+      - uses: hynek/build-and-inspect-python-package@b5076c307dc91924a82ad150cdd1533b444d3310 # pin@v2
 
   combine:
     name: Wait for all jobs
@@ -167,6 +167,6 @@ jobs:
           name: Packages
           path: dist
       - name: Push to PyPi using token
-        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241 # pin@v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # pin@v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
