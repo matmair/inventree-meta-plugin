@@ -99,7 +99,7 @@ jobs:
       - name: Build yarn frontend
         if: ${{ inputs.frontend_path != 'undefined' }}
         run: cd ${{ inputs.frontend_path }} && yarn install && yarn build
-      - uses: hynek/build-and-inspect-python-package@b5076c307dc91924a82ad150cdd1533b444d3310 # pin@v2
+      - uses: hynek/build-and-inspect-python-package@d44ca7d91762de7a7d5436ddae667c6da6d1c3df # pin@v2
 
   combine:
     name: Wait for all jobs
