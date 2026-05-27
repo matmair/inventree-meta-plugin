@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6
       - name: Set up Python ${{ inputs.python_version }}
         uses: actions/setup-python@v5
         with:
@@ -89,10 +89,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6
         with:
           submodules: recursive
-      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # pin@v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # pin@v6
         if: ${{ inputs.frontend_path != 'undefined' }}
         with:
           node-version: 18
@@ -135,12 +135,12 @@ jobs:
             exit 1
           fi
       - name: Get artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # pin@v8
         with:
           name: Packages
           path: dist
       - name: Push to private repo
-        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241 # pin@v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # pin@v1.14.0
         with:
           user: ${{ secrets.REPO_USERNAME }}
           password: ${{ secrets.REPO_PASSWORD }}
@@ -151,22 +151,14 @@ jobs:
     needs: combine
     name: Publish to PyPi
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
-      - name: Check if needed secrets are present for PyPi
-        env:
-          SEC_PYPI: ${{ secrets.PYPI_API_TOKEN != '' }}
-        run: |
-          if [ $SEC_PYPI == false ]; then
-            echo "Missing PyPi secret"
-            exit 1
-          fi
       - name: Get artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # pin@v8
         with:
           name: Packages
           path: dist
       - name: Push to PyPi using token
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # pin@v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # pin@v1.14.0
